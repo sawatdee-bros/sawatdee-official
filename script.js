@@ -154,6 +154,24 @@ async function loadBusinessHours() {
   }
 }
 
+const CLOSING_SOON_HOURS = 1.5; // 閉店何時間前から「閉店間近」表示にするか
+
+function buildOpenMessage(closeDecimal, hoursRemaining) {
+  const closeStr = fmtTime(closeDecimal);
+  if (hoursRemaining <= CLOSING_SOON_HOURS) {
+    return {
+      isOpen: true,
+      closingSoon: true,
+      message: '🟡 本日 ' + closeStr + ' まで営業\n閉店間近の場合はお電話でご確認ください'
+    };
+  }
+  return {
+    isOpen: true,
+    closingSoon: false,
+    message: '🟢 本日 ' + closeStr + ' まで営業'
+  };
+}
+
 function getOpenStatus() {
   const nowUTC = new Date();
   const utcDay = nowUTC.getUTCDay();
@@ -169,16 +187,17 @@ function getOpenStatus() {
   const todayHours = HOURS[jstDay];
   const yesterdayHours = HOURS[(jstDay + 6) % 7];
 
+  // 前日からの深夜営業（例: 土曜の翌2:00まで → 日曜0:00〜2:00 もまだ営業中）
   if (yesterdayHours && yesterdayHours.close > 24) {
     const extendedEnd = yesterdayHours.close - 24;
     if (jstHourDecimal < extendedEnd) {
-      return { isOpen: true, message: '🟢 ただいま営業中' };
+      return buildOpenMessage(extendedEnd, extendedEnd - jstHourDecimal);
     }
   }
   if (todayHours) {
     const effectiveClose = todayHours.close > 24 ? 24 : todayHours.close;
     if (jstHourDecimal >= todayHours.open && jstHourDecimal < effectiveClose) {
-      return { isOpen: true, message: '🟢 ただいま営業中' };
+      return buildOpenMessage(todayHours.close, todayHours.close - jstHourDecimal);
     }
     if (jstHourDecimal < todayHours.open) {
       const oh = Math.floor(todayHours.open);
@@ -195,8 +214,9 @@ function updateOpenStatus() {
   if (!el) return;
   const s = getOpenStatus();
   el.textContent = s.message;
-  el.classList.remove('open', 'closed');
+  el.classList.remove('open', 'closed', 'soon');
   el.classList.add(s.isOpen ? 'open' : 'closed');
+  if (s.closingSoon) el.classList.add('soon');
 }
 
 // 営業時間テーブルを HOURS から動的描画
