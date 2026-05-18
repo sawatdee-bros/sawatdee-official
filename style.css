@@ -682,6 +682,13 @@ img { display: block; max-width: 100%; height: auto; }
   padding-top: 18px;
   border-top: 1px dashed var(--border-light);
 }
+.map-wrap {
+  margin-top: 18px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.map-wrap iframe { display: block; width: 100%; }
 
 /* ── フッター ── */
 .site-footer {
