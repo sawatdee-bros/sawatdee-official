@@ -175,9 +175,21 @@ function renderMenu(catKey) {
   body.innerHTML = html;
 }
 
+// img URL を正規化（Firebase に保存された相対パス /img/xxx.jpg は
+// POS リポにファイルがあるので sawatdee-pos.pages.dev を起点に変換）
+function normalizeImgUrl(img) {
+  if (!img) return null;
+  const s = String(img).trim();
+  if (!s) return null;
+  if (s.startsWith('http://') || s.startsWith('https://')) return s;
+  if (s.startsWith('/')) return 'https://sawatdee-pos.pages.dev' + s;
+  return 'https://sawatdee-pos.pages.dev/' + s;
+}
+
 function renderMenuCard(it) {
-  const img = it.img ? `style="background-image:url('${escapeAttr(it.img)}')"` : '';
-  const imgCls = it.img ? '' : ' no-img';
+  const imgUrl = normalizeImgUrl(it.img);
+  const img = imgUrl ? `style="background-image:url('${escapeAttr(imgUrl)}')"` : '';
+  const imgCls = imgUrl ? '' : ' no-img';
   const priceLabel = it.price_type === 'inclusive' ? '税込' : '税抜';
   const price = (typeof it.price === 'number') ? it.price.toLocaleString() : '?';
 
