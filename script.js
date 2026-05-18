@@ -138,19 +138,41 @@ function applyBusinessHours(byDow) {
   HOURS = next;
 }
 
-// Firebase から営業時間を取得（失敗時は fallback のまま）
-async function loadBusinessHours() {
+// 住所/電話/地図リンクを描画
+function applyStoreInfo(address, phone) {
+  if (address) {
+    const addrEl = document.getElementById('store-address');
+    if (addrEl) addrEl.textContent = address;
+    const enc = encodeURIComponent(address);
+    const linkEl = document.getElementById('store-map-link');
+    if (linkEl) linkEl.href = 'https://www.google.com/maps/search/?api=1&query=' + enc;
+    const ifr = document.getElementById('store-map-iframe');
+    if (ifr) ifr.src = 'https://maps.google.com/maps?q=' + enc + '&output=embed';
+  }
+  if (phone) {
+    const phoneEl = document.getElementById('store-phone');
+    if (phoneEl) {
+      phoneEl.textContent = phone;
+      phoneEl.href = 'tel:' + phone.replace(/[^\d+]/g, '');
+    }
+  }
+}
+
+// Firebase から店舗基本情報（営業時間・住所・電話）を取得（失敗時は HTML 既定値のまま）
+async function loadStoreInfo() {
   try {
-    const r = await fetch(FIREBASE_DB_URL + '/store_config/business_hours_by_dow.json');
+    const r = await fetch(FIREBASE_DB_URL + '/store_config.json');
     if (!r.ok) return;
-    const data = await r.json();
-    if (data) {
-      applyBusinessHours(data);
+    const cfg = await r.json();
+    if (!cfg) return;
+    if (cfg.business_hours_by_dow) {
+      applyBusinessHours(cfg.business_hours_by_dow);
       updateOpenStatus();
       renderHoursTable();
     }
+    applyStoreInfo(cfg.store_address, cfg.store_phone);
   } catch (e) {
-    console.warn('Failed to load business_hours_by_dow:', e);
+    console.warn('Failed to load store_config:', e);
   }
 }
 
@@ -270,7 +292,7 @@ function bootHours() {
   updateOpenStatus();
   renderHoursTable();
   // Firebase から動的取得（取れたら上書き）
-  loadBusinessHours();
+  loadStoreInfo();
 }
 
 if (document.readyState === 'loading') {
