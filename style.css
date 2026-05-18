@@ -199,75 +199,107 @@ img { display: block; max-width: 100%; height: auto; }
 .map-wrap { margin-top: 8px; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
 .map-wrap iframe { display: block; }
 
-/* ── こだわり（funpage 由来） ── */
-#page-concept { background: #FAFAFA; padding: 20px 14px 40px; }
-.concept-inner { max-width: 680px; margin: 0 auto; }
+/* ── こだわり（ホーム/店内と同じテイスト：白基調・ゴールド下線・赤アクセント） ── */
+#page-concept { background: var(--warm-bg); padding: 48px 16px 56px; }
+.concept-inner { max-width: 720px; margin: 0 auto; }
+.concept-inner .section-title:not(:first-child) { margin-top: 48px; }
 
-.concept-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 12px;
-  border: 1px solid #f0f0f0;
+.concept-greet-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 24px 22px;
+  box-shadow: var(--shadow);
 }
-.concept-eyebrow {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--thai-red);
+.concept-greet-card p {
+  font-size: 15px;
+  color: var(--text-dark);
+  line-height: 1.95;
   margin-bottom: 14px;
 }
-.concept-eyebrow-dark { color: rgba(255, 255, 255, 0.6); margin-bottom: 12px; }
-
-.concept-greeting {
-  font-size: 13px;
-  color: #555;
-  line-height: 1.9;
-  border-left: 3px solid var(--thai-red);
-  padding-left: 12px;
-}
+.concept-greet-card p:last-of-type { margin-bottom: 0; }
 .concept-thai-greet {
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--thai-red);
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-light);
   font-family: 'Sarabun', sans-serif;
+  font-size: 15px;
+  color: var(--thai-red);
   letter-spacing: 1px;
+  text-align: right;
 }
 
-.concept-philosophy {
-  background: var(--thai-red);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 12px;
-  color: #fff;
+.concept-philosophy-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
 }
-.concept-philosophy-title {
-  font-size: 18px;
+.concept-philosophy-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: linear-gradient(180deg, var(--thai-red) 0%, var(--thai-gold) 100%);
+}
+.concept-philosophy-headline {
+  font-size: 24px;
   font-weight: 900;
   line-height: 1.4;
-  margin-bottom: 12px;
+  color: var(--thai-red);
+  margin-bottom: 18px;
+  letter-spacing: 0.02em;
 }
-.concept-philosophy-body {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.9;
+.concept-philosophy-card p {
+  font-size: 15px;
+  color: var(--text-dark);
+  line-height: 1.95;
+  margin-bottom: 14px;
+}
+.concept-philosophy-card p:last-of-type { margin-bottom: 0; }
+.concept-philosophy-card strong {
+  color: var(--thai-red);
+  font-weight: 900;
 }
 
-.commitment-list { display: flex; flex-direction: column; gap: 16px; }
-.commitment-item {
-  border-left: 3px solid var(--thai-red);
-  padding-left: 12px;
+.commitment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
-.commitment-title {
-  font-size: 14px;
+.commitment-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 22px 20px 20px;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.commitment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.commitment-num {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--thai-gold);
+  margin-bottom: 8px;
+}
+.commitment-card h4 {
+  font-size: 16px;
   font-weight: 900;
-  color: #111;
-  margin-bottom: 4px;
+  color: var(--thai-red);
+  line-height: 1.45;
+  margin-bottom: 10px;
 }
-.commitment-desc {
-  font-size: 12px;
-  color: #666;
-  line-height: 1.8;
+.commitment-card p {
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.85;
 }
 
 /* ── メニュー ── */
@@ -546,9 +578,17 @@ img { display: block; max-width: 100%; height: auto; }
   .hero-desc { font-size: 14px; }
   .btn { padding: 12px 22px; font-size: 14px; }
   .section-title { font-size: 20px; }
-  #page-concept { padding: 14px 10px 32px; }
-  .concept-card, .concept-philosophy { padding: 16px; }
-  .concept-philosophy-title { font-size: 17px; }
+  #page-concept { padding: 32px 12px 40px; }
+  .concept-inner .section-title:not(:first-child) { margin-top: 36px; }
+  .concept-greet-card { padding: 20px 18px; }
+  .concept-greet-card p { font-size: 14px; }
+  .concept-philosophy-card { padding: 22px 18px; }
+  .concept-philosophy-headline { font-size: 20px; }
+  .concept-philosophy-card p { font-size: 14px; }
+  .commitment-grid { grid-template-columns: 1fr; gap: 12px; }
+  .commitment-card { padding: 18px 16px 16px; }
+  .commitment-card h4 { font-size: 15px; }
+  .commitment-card p { font-size: 13px; }
   .tab-btn { font-size: 11px; min-width: 70px; padding: 12px 8px; }
   .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .menu-card-img { aspect-ratio: 1 / 1; }
