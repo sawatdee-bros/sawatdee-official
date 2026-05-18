@@ -505,6 +505,8 @@ img { display: block; max-width: 100%; height: auto; }
   margin-bottom: 6px;
 }
 .interior-item p { font-size: 13px; color: var(--text-dark); line-height: 1.7; }
+.interior-item-wide { grid-column: 1 / -1; }
+.interior-item-wide img { aspect-ratio: 16 / 9; max-height: 280px; }
 .interior-cta {
   text-align: center;
   padding: 24px 0;
