@@ -94,7 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== 営業時間判定 (深夜営業対応・JST) =====
-const HOURS = {
+// fallback: Firebase 未投入時用。Firebase の store_config/business_hours_by_dow が
+// 取得できれば上書きされる
+const FALLBACK_HOURS = {
   0: { open: 14.0, close: 23.0 },         // 日
   1: null,                                // 月 定休
   2: null,                                // 火 定休
@@ -103,6 +105,54 @@ const HOURS = {
   5: { open: 17.5, close: 26.0 },         // 金（翌2時=26時）
   6: { open: 17.5, close: 26.0 },         // 土
 };
+let HOURS = Object.assign({}, FALLBACK_HOURS);
+
+// 'HH:MM' を時分小数（24時間超え対応）に変換: '17:30' → 17.5, '26:00' → 26.0
+function timeStrToDecimal(s) {
+  const m = String(s || '').match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return NaN;
+  return parseInt(m[1], 10) + parseInt(m[2], 10) / 60;
+}
+
+// business_hours_by_dow ({ '0': [{start,end}], '1': [], ... }) を HOURS 形式に変換
+// 複数 range には対応せず、最初の range だけ採用（公式サイト用途では十分）
+// end < start なら翌日扱い（深夜営業）→ close = end_decimal + 24
+function applyBusinessHours(byDow) {
+  if (!byDow || typeof byDow !== 'object') return;
+  const next = {};
+  for (let d = 0; d < 7; d++) {
+    const key = String(d);
+    const ranges = byDow[key];
+    if (!Array.isArray(ranges) || ranges.length === 0) {
+      next[d] = null;
+      continue;
+    }
+    const r = ranges[0];
+    const open = timeStrToDecimal(r.start);
+    let close = timeStrToDecimal(r.end);
+    if (isNaN(open) || isNaN(close)) { next[d] = null; continue; }
+    // end <= start なら翌日扱い（深夜営業）。ただし end が 24+ の表記なら既に翌日扱い済み
+    if (close <= open) close += 24;
+    next[d] = { open: open, close: close };
+  }
+  HOURS = next;
+}
+
+// Firebase から営業時間を取得（失敗時は fallback のまま）
+async function loadBusinessHours() {
+  try {
+    const r = await fetch(FIREBASE_DB_URL + '/store_config/business_hours_by_dow.json');
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data) {
+      applyBusinessHours(data);
+      updateOpenStatus();
+      renderHoursTable();
+    }
+  } catch (e) {
+    console.warn('Failed to load business_hours_by_dow:', e);
+  }
+}
 
 function getOpenStatus() {
   const nowUTC = new Date();
@@ -149,10 +199,64 @@ function updateOpenStatus() {
   el.classList.add(s.isOpen ? 'open' : 'closed');
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', updateOpenStatus);
-} else {
+// 営業時間テーブルを HOURS から動的描画
+// 連続する同一営業時間の曜日をグループ化（水・木 / 金・土 / 日 / 月・火）
+const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'];
+
+function fmtTime(decimalHours) {
+  // 24:00 ジャストは「24:00」、それを超える場合は「翌H:MM」表記
+  if (decimalHours > 24) {
+    const adj = decimalHours - 24;
+    const h = Math.floor(adj);
+    const m = Math.round((adj - h) * 60);
+    return '翌' + h + ':' + ('0' + m).slice(-2);
+  }
+  const h = Math.floor(decimalHours);
+  const m = Math.round((decimalHours - h) * 60);
+  return h + ':' + ('0' + m).slice(-2);
+}
+
+function renderHoursTable() {
+  const ul = document.querySelector('.hours-list');
+  if (!ul) return;
+  // 営業時間ハッシュごとにグループ化（出力順: 水木 → 金土 → 日 → 月火）
+  // 元の順序: [3,4,5,6,0,1,2] で並べて、同じ営業内容を連結
+  const order = [3, 4, 5, 6, 0, 1, 2];
+  const groups = [];
+  let cur = null;
+  order.forEach(d => {
+    const h = HOURS[d];
+    const sig = h ? h.open + '-' + h.close : 'CLOSED';
+    if (cur && cur.sig === sig) {
+      cur.dows.push(d);
+    } else {
+      cur = { sig, dows: [d], hours: h };
+      groups.push(cur);
+    }
+  });
+  let html = '';
+  groups.forEach(g => {
+    const dowStr = g.dows.map(d => DOW_LABELS[d]).join('・');
+    if (!g.hours) {
+      html += '<li class="closed"><span class="dow">' + dowStr + '</span><span class="time">定休日</span></li>';
+    } else {
+      html += '<li><span class="dow">' + dowStr + '</span><span class="time">' + fmtTime(g.hours.open) + ' – ' + fmtTime(g.hours.close) + '</span></li>';
+    }
+  });
+  ul.innerHTML = html;
+}
+
+function bootHours() {
   updateOpenStatus();
+  renderHoursTable();
+  // Firebase から動的取得（取れたら上書き）
+  loadBusinessHours();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootHours);
+} else {
+  bootHours();
 }
 setInterval(updateOpenStatus, 60 * 1000);
 
