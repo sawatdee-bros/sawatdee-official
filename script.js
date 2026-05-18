@@ -4,7 +4,7 @@
 const FIREBASE_DB_URL = 'https://sawatdee-bros-default-rtdb.asia-southeast1.firebasedatabase.app';
 
 // ===== タブ切替（スクロール式） =====
-const PAGE_NAMES = ['home', 'concept', 'menu', 'interior', 'quiz'];
+const PAGE_NAMES = ['home', 'menu', 'concept', 'interior', 'info'];
 let _suppressObserver = false;
 
 function setActiveTab(name) {
@@ -159,7 +159,11 @@ setInterval(updateOpenStatus, 60 * 1000);
 // ===== Firebase メニュー連携 =====
 let _menuData = null;
 let _menuOverrides = null;
-let _currentMenuCat = 'drink';
+const MENU_CATS = [
+  { key: 'drink', label: 'ドリンク', icon: '🍺' },
+  { key: 'food',  label: 'フード',   icon: '🍽' },
+  { key: 'set',   label: 'コース',   icon: '🎁' }
+];
 
 async function loadMenu() {
   const body = document.getElementById('menu-body');
@@ -172,37 +176,30 @@ async function loadMenu() {
     ]);
     _menuData = await menuRes.json() || {};
     _menuOverrides = await ovRes.json() || {};
-    setupMenuCatTabs();
-    renderMenu(_currentMenuCat);
+    renderAllMenus();
   } catch (e) {
     body.innerHTML = '<div class="menu-empty">メニューの読み込みに失敗しました。<br>少し時間をおいて再度お試しください。</div>';
     console.error('Menu load failed:', e);
   }
 }
 
-function setupMenuCatTabs() {
-  document.querySelectorAll('.menu-cat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _currentMenuCat = btn.dataset.cat;
-      document.querySelectorAll('.menu-cat-btn').forEach(b => b.classList.toggle('active', b === btn));
-      renderMenu(_currentMenuCat);
-      // サブタブ切替時はサブタブを sticky 位置にスクロールバック
-      // ※ サブタブが sticky で常に同じ位置なので scrollIntoView は効かない
-      const catTabs = document.querySelector('.menu-cat-tabs');
-      if (catTabs) {
-        const y = catTabs.getBoundingClientRect().top + window.scrollY - 49; // tab-nav の高さ分オフセット
-        window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
-      }
-    });
-  });
-}
-
-function renderMenu(catKey) {
+function renderAllMenus() {
   const body = document.getElementById('menu-body');
   if (!body || !_menuData) return;
+  let html = '';
+  MENU_CATS.forEach(cat => {
+    const inner = renderMenuCat(cat.key);
+    if (!inner) return;
+    html += '<div class="menu-cat-block">'
+      + '<h4 class="menu-cat-heading"><span class="menu-cat-icon">' + cat.icon + '</span>' + escapeHtml(cat.label) + '</h4>'
+      + inner
+      + '</div>';
+  });
+  body.innerHTML = html || '<div class="menu-empty">表示できる商品がありません。</div>';
+}
 
+function renderMenuCat(catKey) {
   const catData = _menuData[catKey] || {};
-  // subcatOrder で並び替え（POS と同じロジック）
   const order = (_menuData.subcatOrder || {})[catKey] || [];
   const all = Object.keys(catData);
   const sortedSubcats = order.filter(s => all.includes(s)).concat(all.filter(s => !order.includes(s)));
@@ -230,12 +227,7 @@ function renderMenu(catKey) {
     html += '</div></div>';
   });
 
-  if (visibleCount === 0) {
-    body.innerHTML = '<div class="menu-empty">このカテゴリには現在表示できる商品がありません。</div>';
-    return;
-  }
-
-  body.innerHTML = html;
+  return visibleCount > 0 ? html : '';
 }
 
 // img URL を正規化（Firebase に保存された相対パス /img/xxx.jpg は
