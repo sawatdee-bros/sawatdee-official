@@ -1,89 +1,215 @@
-// サワディ兄弟 公式サイト Phase 1
-// 営業時間の動的判定（深夜営業対応・JST 前提）
+// サワディ兄弟 公式サイト Phase 1.5
+// タブ切替 + 営業時間判定 + Firebase メニュー連携
 
-(function() {
-  // 営業時間定義 (memory: project_store_hours.md - 2026-05-09 確認)
-  // 0=日, 1=月, 2=火, 3=水, 4=木, 5=金, 6=土
-  // openHour: 開始時刻 (24h), closeHour: 終了時刻 (24h、25 以上は翌日扱い)
-  const HOURS = {
-    0: { open: 14.0, close: 23.0 },         // 日 14:00 – 23:00
-    1: null,                                // 月 定休
-    2: null,                                // 火 定休
-    3: { open: 17.5, close: 24.0 },         // 水 17:30 – 24:00
-    4: { open: 17.5, close: 24.0 },         // 木 17:30 – 24:00
-    5: { open: 17.5, close: 26.0 },         // 金 17:30 – 翌2:00 (=26時)
-    6: { open: 17.5, close: 26.0 },         // 土 17:30 – 翌2:00
-  };
+const FIREBASE_DB_URL = 'https://sawatdee-bros-default-rtdb.asia-southeast1.firebasedatabase.app';
 
-  // 現在の日本時間で営業中か判定
-  function getOpenStatus() {
-    const nowUTC = new Date();
-    // JST offset = +9h
-    const jstOffsetMin = 9 * 60;
-    const nowJst = new Date(nowUTC.getTime() + (jstOffsetMin - nowUTC.getTimezoneOffset()) * -60000 + jstOffsetMin * 60000);
-    // 上式は煩雑なので、シンプルに UTC からの分計算で書き直す:
-    // ブラウザ依存を避けるため getUTC* を使う
-    const utcDay = nowUTC.getUTCDay();
-    const utcH = nowUTC.getUTCHours();
-    const utcMin = nowUTC.getUTCMinutes();
-    // JST = UTC + 9h
-    let jstTotalMin = utcH * 60 + utcMin + 9 * 60;
-    let jstDay = utcDay;
-    if (jstTotalMin >= 24 * 60) {
-      jstTotalMin -= 24 * 60;
-      jstDay = (jstDay + 1) % 7;
+// ===== タブ切替 =====
+function switchTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + name);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+  // URL hash で深リンク
+  if (location.hash !== '#' + name) {
+    history.replaceState(null, '', '#' + name);
+  }
+  // ページ先頭にスクロール
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // メニュータブの場合は初回ロード
+  if (name === 'menu' && !window._menuLoaded) {
+    loadMenu();
+    window._menuLoaded = true;
+  }
+}
+window.switchTab = switchTab;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // タブボタンのクリック
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+  // 初期表示（URL hash があれば優先）
+  const initial = (location.hash || '').replace('#', '');
+  if (['home', 'concept', 'menu', 'interior', 'quiz'].includes(initial)) {
+    switchTab(initial);
+  }
+});
+
+// ===== 営業時間判定 (深夜営業対応・JST) =====
+const HOURS = {
+  0: { open: 14.0, close: 23.0 },         // 日
+  1: null,                                // 月 定休
+  2: null,                                // 火 定休
+  3: { open: 17.5, close: 24.0 },         // 水
+  4: { open: 17.5, close: 24.0 },         // 木
+  5: { open: 17.5, close: 26.0 },         // 金（翌2時=26時）
+  6: { open: 17.5, close: 26.0 },         // 土
+};
+
+function getOpenStatus() {
+  const nowUTC = new Date();
+  const utcDay = nowUTC.getUTCDay();
+  const utcH = nowUTC.getUTCHours();
+  const utcMin = nowUTC.getUTCMinutes();
+  let jstTotalMin = utcH * 60 + utcMin + 9 * 60;
+  let jstDay = utcDay;
+  if (jstTotalMin >= 24 * 60) {
+    jstTotalMin -= 24 * 60;
+    jstDay = (jstDay + 1) % 7;
+  }
+  const jstHourDecimal = jstTotalMin / 60;
+  const todayHours = HOURS[jstDay];
+  const yesterdayHours = HOURS[(jstDay + 6) % 7];
+
+  if (yesterdayHours && yesterdayHours.close > 24) {
+    const extendedEnd = yesterdayHours.close - 24;
+    if (jstHourDecimal < extendedEnd) {
+      return { isOpen: true, message: '🟢 ただいま営業中' };
     }
-    const jstH = Math.floor(jstTotalMin / 60);
-    const jstMin = jstTotalMin % 60;
-    const jstHourDecimal = jstH + jstMin / 60;
-
-    // 今日の営業時間 (今日が定休でも、昨日の深夜営業が今日に被ってる場合あり)
-    const todayHours = HOURS[jstDay];
-    const yesterdayDay = (jstDay + 6) % 7;
-    const yesterdayHours = HOURS[yesterdayDay];
-
-    // ケース1: 昨日が深夜営業 (close > 24) で、今日の早朝 (jstH < close - 24) なら営業中
-    if (yesterdayHours && yesterdayHours.close > 24) {
-      const extendedEnd = yesterdayHours.close - 24;
-      if (jstHourDecimal < extendedEnd) {
-        return { isOpen: true, message: '🟢 ただいま営業中' };
-      }
+  }
+  if (todayHours) {
+    const effectiveClose = todayHours.close > 24 ? 24 : todayHours.close;
+    if (jstHourDecimal >= todayHours.open && jstHourDecimal < effectiveClose) {
+      return { isOpen: true, message: '🟢 ただいま営業中' };
     }
-
-    // ケース2: 今日の通常営業時間内か
-    if (todayHours) {
-      const effectiveClose = todayHours.close > 24 ? 24 : todayHours.close;
-      if (jstHourDecimal >= todayHours.open && jstHourDecimal < effectiveClose) {
-        return { isOpen: true, message: '🟢 ただいま営業中' };
-      }
-      // 開店前
-      if (jstHourDecimal < todayHours.open) {
-        const oh = Math.floor(todayHours.open);
-        const om = Math.round((todayHours.open - oh) * 60);
-        return { isOpen: false, message: '🔴 本日 ' + oh + ':' + ('0' + om).slice(-2) + ' 開店予定' };
-      }
-      // 閉店後（深夜営業のオーバーフロー部分はケース1で処理済）
-      return { isOpen: false, message: '🔴 本日の営業は終了しました' };
+    if (jstHourDecimal < todayHours.open) {
+      const oh = Math.floor(todayHours.open);
+      const om = Math.round((todayHours.open - oh) * 60);
+      return { isOpen: false, message: '🔴 本日 ' + oh + ':' + ('0' + om).slice(-2) + ' 開店予定' };
     }
+    return { isOpen: false, message: '🔴 本日の営業は終了しました' };
+  }
+  return { isOpen: false, message: '🔴 本日は定休日です' };
+}
 
-    // 今日が定休日
-    return { isOpen: false, message: '🔴 本日は定休日です' };
+function updateOpenStatus() {
+  const el = document.getElementById('open-now');
+  if (!el) return;
+  const s = getOpenStatus();
+  el.textContent = s.message;
+  el.classList.remove('open', 'closed');
+  el.classList.add(s.isOpen ? 'open' : 'closed');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', updateOpenStatus);
+} else {
+  updateOpenStatus();
+}
+setInterval(updateOpenStatus, 60 * 1000);
+
+// ===== Firebase メニュー連携 =====
+let _menuData = null;
+let _menuOverrides = null;
+let _currentMenuCat = 'drink';
+
+async function loadMenu() {
+  const body = document.getElementById('menu-body');
+  if (!body) return;
+  body.innerHTML = '<div class="menu-loading">読み込み中...</div>';
+  try {
+    const [menuRes, ovRes] = await Promise.all([
+      fetch(FIREBASE_DB_URL + '/menu.json'),
+      fetch(FIREBASE_DB_URL + '/menu_overrides.json')
+    ]);
+    _menuData = await menuRes.json() || {};
+    _menuOverrides = await ovRes.json() || {};
+    setupMenuCatTabs();
+    renderMenu(_currentMenuCat);
+  } catch (e) {
+    body.innerHTML = '<div class="menu-empty">メニューの読み込みに失敗しました。<br>少し時間をおいて再度お試しください。</div>';
+    console.error('Menu load failed:', e);
+  }
+}
+
+function setupMenuCatTabs() {
+  document.querySelectorAll('.menu-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _currentMenuCat = btn.dataset.cat;
+      document.querySelectorAll('.menu-cat-btn').forEach(b => b.classList.toggle('active', b === btn));
+      renderMenu(_currentMenuCat);
+    });
+  });
+}
+
+function renderMenu(catKey) {
+  const body = document.getElementById('menu-body');
+  if (!body || !_menuData) return;
+
+  const catData = _menuData[catKey] || {};
+  // subcatOrder で並び替え（POS と同じロジック）
+  const order = (_menuData.subcatOrder || {})[catKey] || [];
+  const all = Object.keys(catData);
+  const sortedSubcats = order.filter(s => all.includes(s)).concat(all.filter(s => !order.includes(s)));
+
+  let html = '';
+  let visibleCount = 0;
+
+  sortedSubcats.forEach((sub, idx) => {
+    const itemsRaw = catData[sub];
+    const items = Array.isArray(itemsRaw) ? itemsRaw : Object.values(itemsRaw || {});
+    // active && !hidden && !charge_exempt（お冷など）の商品のみ表示
+    const visibleItems = items.filter(it => it && it.active && !it.hidden);
+    if (visibleItems.length === 0) return;
+    visibleCount += visibleItems.length;
+
+    html += '<div class="menu-subcat">';
+    html += '<div class="menu-subcat-title"><span class="num">' + (idx + 1) + '</span><span class="label">' + escapeHtml(sub) + '</span></div>';
+    html += '<div class="menu-grid">';
+    visibleItems.forEach(it => {
+      // menu_overrides マージ
+      const ov = (it.id && _menuOverrides[it.id]) ? _menuOverrides[it.id] : {};
+      const merged = Object.assign({}, it, ov);
+      html += renderMenuCard(merged);
+    });
+    html += '</div></div>';
+  });
+
+  if (visibleCount === 0) {
+    body.innerHTML = '<div class="menu-empty">このカテゴリには現在表示できる商品がありません。</div>';
+    return;
   }
 
-  function updateOpenStatus() {
-    const el = document.getElementById('open-now');
-    if (!el) return;
-    const status = getOpenStatus();
-    el.textContent = status.message;
-    el.classList.remove('open', 'closed');
-    el.classList.add(status.isOpen ? 'open' : 'closed');
+  body.innerHTML = html;
+}
+
+function renderMenuCard(it) {
+  const img = it.img ? `style="background-image:url('${escapeAttr(it.img)}')"` : '';
+  const imgCls = it.img ? '' : ' no-img';
+  const priceLabel = it.price_type === 'inclusive' ? '税込' : '税抜';
+  const price = (typeof it.price === 'number') ? it.price.toLocaleString() : '?';
+
+  // バッジ
+  let badges = '';
+  if (it.popular) badges += '<span class="menu-badge badge-popular">🔥 ' + escapeHtml(String(it.popular)) + '</span>';
+  if (it.sake) badges += '<span class="menu-badge badge-sake">🍺 酒に合う</span>';
+  if (it.pakchi) badges += '<span class="menu-badge badge-pakchi">🌿 パクチー</span>';
+  if (it.spicy && it.spicy > 0) {
+    const peppers = '🌶️'.repeat(Math.min(Number(it.spicy), 5));
+    badges += '<span class="menu-badge badge-spicy">' + peppers + '</span>';
   }
 
-  // 初期表示 + 1分ごとに更新
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateOpenStatus);
-  } else {
-    updateOpenStatus();
-  }
-  setInterval(updateOpenStatus, 60 * 1000);
-})();
+  const thai = it.thai ? '<div class="menu-card-thai">' + escapeHtml(it.thai) + '</div>' : '';
+  const desc = it.desc ? '<div class="menu-card-desc">' + escapeHtml(it.desc) + '</div>' : '';
+  const badgesBlock = badges ? '<div class="menu-card-badges">' + badges + '</div>' : '';
+
+  return '<article class="menu-card">'
+    + '<div class="menu-card-img' + imgCls + '" ' + img + '></div>'
+    + '<div class="menu-card-body">'
+    + '<div class="menu-card-name">' + escapeHtml(it.name || '?') + '</div>'
+    + thai
+    + '<div class="menu-card-price">¥' + price + ' <span style="font-size:10px;color:#9CA3AF;font-weight:400;">(' + priceLabel + ')</span></div>'
+    + desc
+    + badgesBlock
+    + '</div>'
+    + '</article>';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function escapeAttr(s) {
+  return String(s).replace(/"/g, '&quot;');
+}

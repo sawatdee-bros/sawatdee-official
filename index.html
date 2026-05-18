@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>サワディ兄弟 | 酒とタイ料理 - 神奈川県川崎市</title>
-<meta name="description" content="神奈川県川崎市中原区にある本格タイ料理店「サワディ兄弟」公式サイト。タイへの愛とリスペクトを込めて、本場の味を妥協なく。ご予約・店舗情報・お楽しみページはこちら。">
+<meta name="description" content="神奈川県川崎市中原区にある本格タイ料理店「サワディ兄弟」公式サイト。タイへの愛とリスペクトを込めて、本場の味を妥協なく。メニュー・ご予約・お楽しみ。">
 <meta property="og:title" content="サワディ兄弟 | 酒とタイ料理">
 <meta property="og:description" content="神奈川県川崎市の本格タイ料理店。タイへの愛とリスペクトを込めて、本場の味を。">
 <meta property="og:type" content="website">
@@ -23,54 +23,36 @@
   </div>
 </header>
 
-<section class="hero">
-  <div class="hero-inner">
-    <img src="assets/logo-text.gif" alt="SAWATDEE BROS" class="hero-logo">
-    <p class="hero-sub">本場の味を、川崎で。</p>
-    <p class="hero-desc">タイへの愛とリスペクトを込めて。<br>タイ人が美味しいと感じる味を、日本のお客様にも妥協なく。</p>
-    <div class="hero-actions">
-      <a href="https://sawatdee-reservation.pages.dev/" class="btn btn-primary" target="_blank" rel="noopener">
-        📅 ご予約はこちら
-      </a>
-      <a href="https://sawatdee-pos.pages.dev/funpage.html" class="btn btn-secondary" target="_blank" rel="noopener">
-        🐘 お楽しみページ
-      </a>
+<!-- タブナビゲーション -->
+<nav class="tab-nav" id="tab-nav">
+  <button class="tab-btn active" data-tab="home">🏠 ホーム</button>
+  <button class="tab-btn" data-tab="concept">💛 こだわり</button>
+  <button class="tab-btn" data-tab="menu">🍽 メニュー</button>
+  <button class="tab-btn" data-tab="interior">🏮 店内</button>
+  <button class="tab-btn" data-tab="quiz">🐘 クイズ</button>
+</nav>
+
+<!-- ========= ホーム ========= -->
+<section class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-inner">
+      <img src="assets/logo-text.gif" alt="SAWATDEE BROS" class="hero-logo">
+      <p class="hero-sub">本場の味を、川崎で。</p>
+      <p class="hero-desc">タイへの愛とリスペクトを込めて。<br>タイ人が美味しいと感じる味を、日本のお客様にも妥協なく。</p>
+      <div class="hero-actions">
+        <a href="https://sawatdee-reservation.pages.dev/" class="btn btn-primary" target="_blank" rel="noopener">
+          📅 ご予約はこちら
+        </a>
+        <button class="btn btn-secondary" onclick="switchTab('menu')">
+          🍽 メニューを見る
+        </button>
+      </div>
     </div>
   </div>
-</section>
 
-<section class="concept">
-  <div class="concept-inner">
-    <h3 class="concept-headline">■ テーマはタイへの愛とリスペクト</h3>
-    <p class="concept-lead">タイ料理好きな方はもちろん、<br>初めての方でも美味しく、楽しくタイ料理を</p>
-    <div class="concept-body">
-      <p>当店が開業からずっと大事にしていること、それは<strong>タイへの愛とリスペクト</strong>です。大前提はタイ人がちゃんとおいしいと思うタイ料理を提供すること。その為に安易にアレンジをせず、本場の味を提供します。</p>
-      <p>そのうえで日本人の料理人である私ができることは、私が本場タイで本当に美味しいと感じたレシピを研究し<strong>日本人もタイ人も満足できる味を追求すること</strong>です。</p>
-      <p>当店では、タイ料理ファンを満足させる<span class="hl">【妥協なしの本場の味付け】</span>で本気のタイ料理を提供。また、タイ料理に馴染みのない方も安心して召し上がって頂けるような<span class="hl">【メニュー構成】</span>を心掛けています。</p>
-    </div>
-  </div>
-</section>
-
-<section class="gallery">
-  <div class="gallery-inner">
-    <h3 class="section-title">お料理・店内</h3>
-    <div class="gallery-grid">
-      <figure class="gallery-item"><img src="assets/food-gaiyaan.jpg" alt="タイ風焼き鳥（ガイヤーン）" loading="lazy"></figure>
-      <figure class="gallery-item"><img src="assets/food-greencurry.jpg" alt="グリーンカレー" loading="lazy"></figure>
-      <figure class="gallery-item"><img src="assets/food-shrimp.jpg" alt="エビ料理（パクチー）" loading="lazy"></figure>
-      <figure class="gallery-item"><img src="assets/food-gaiyaan-greencurry.jpg" alt="サワディ兄弟のお料理" loading="lazy"></figure>
-      <figure class="gallery-item"><img src="assets/drinks-thai-beer.jpg" alt="タイビール（Chang / Leo / Singha）" loading="lazy"></figure>
-      <figure class="gallery-item"><img src="assets/interior-table.jpg" alt="店内 テーブル席" loading="lazy"></figure>
-      <figure class="gallery-item"><img src="assets/interior-deco.jpg" alt="店内 タイの装飾" loading="lazy"></figure>
-    </div>
-    <p class="gallery-note">※ メニュー詳細は <a href="https://sawatdee-reservation.pages.dev/" target="_blank" rel="noopener">ご来店・ご予約時</a> にどうぞ</p>
-  </div>
-</section>
-
-<section class="info" id="info">
+  <!-- 店舗情報サマリ -->
   <div class="info-inner">
     <h3 class="section-title">店舗情報</h3>
-
     <div class="info-grid">
       <div class="info-card">
         <h4>📍 住所</h4>
@@ -79,13 +61,11 @@
           Googleマップで開く →
         </a>
       </div>
-
       <div class="info-card">
         <h4>📞 電話</h4>
         <p><a href="tel:044-777-6759" class="phone">044-777-6759</a></p>
         <p class="info-note">お電話でのご予約も承ります</p>
       </div>
-
       <div class="info-card hours-card">
         <h4>🕒 営業時間</h4>
         <ul class="hours-list">
@@ -97,10 +77,8 @@
         <p class="open-now" id="open-now"></p>
       </div>
     </div>
-
     <div class="map-wrap">
-      <iframe
-        src="https://maps.google.com/maps?q=%E7%A5%9E%E5%A5%88%E5%B7%9D%E7%9C%8C%E5%B7%9D%E5%B4%8E%E5%B8%82%E4%B8%AD%E5%8E%9F%E5%8C%BA%E4%B8%8A%E5%B0%8F%E7%94%B0%E4%B8%AD5-3-10&output=embed"
+      <iframe src="https://maps.google.com/maps?q=%E7%A5%9E%E5%A5%88%E5%B7%9D%E7%9C%8C%E5%B7%9D%E5%B4%8E%E5%B8%82%E4%B8%AD%E5%8E%9F%E5%8C%BA%E4%B8%8A%E5%B0%8F%E7%94%B0%E4%B8%AD5-3-10&output=embed"
         width="100%" height="320" style="border:0;" allowfullscreen="" loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         title="サワディ兄弟 地図"></iframe>
@@ -108,19 +86,86 @@
   </div>
 </section>
 
-<section class="links">
-  <div class="links-inner">
-    <h3 class="section-title">関連リンク</h3>
-    <div class="link-grid">
-      <a href="https://sawatdee-reservation.pages.dev/" class="link-card" target="_blank" rel="noopener">
-        <span class="link-icon">📅</span>
-        <span class="link-label">ご予約</span>
-        <span class="link-desc">オンライン予約</span>
+<!-- ========= こだわり ========= -->
+<section class="page" id="page-concept">
+  <div class="concept">
+    <div class="concept-inner">
+      <h3 class="concept-headline">■ テーマはタイへの愛とリスペクト</h3>
+      <p class="concept-lead">タイ料理好きな方はもちろん、<br>初めての方でも美味しく、楽しくタイ料理を</p>
+      <div class="concept-body">
+        <p>当店が開業からずっと大事にしていること、それは<strong>タイへの愛とリスペクト</strong>です。大前提はタイ人がちゃんとおいしいと思うタイ料理を提供すること。その為に安易にアレンジをせず、本場の味を提供します。</p>
+        <p>そのうえで日本人の料理人である私ができることは、私が本場タイで本当に美味しいと感じたレシピを研究し<strong>日本人もタイ人も満足できる味を追求すること</strong>です。</p>
+        <p>当店では、タイ料理ファンを満足させる<span class="hl">【妥協なしの本場の味付け】</span>で本気のタイ料理を提供。また、タイ料理に馴染みのない方も安心して召し上がって頂けるような<span class="hl">【メニュー構成】</span>を心掛けています。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= メニュー ========= -->
+<section class="page" id="page-menu">
+  <div class="menu-banner">
+    <span class="menu-banner-text">★ MENU ★ SAWATDEE BROS ★ MENU ★ SAWATDEE BROS ★</span>
+  </div>
+  <div class="menu-cat-tabs" id="menu-cat-tabs">
+    <button class="menu-cat-btn active" data-cat="drink">🍺 ドリンク</button>
+    <button class="menu-cat-btn" data-cat="food">🍽 フード</button>
+    <button class="menu-cat-btn" data-cat="set">🎁 セット</button>
+  </div>
+  <div class="menu-body" id="menu-body">
+    <div class="menu-loading">読み込み中...</div>
+  </div>
+  <div class="menu-banner">
+    <span class="menu-banner-text">★ ご来店時に最新メニューをお渡しします ★</span>
+  </div>
+</section>
+
+<!-- ========= 店内紹介 ========= -->
+<section class="page" id="page-interior">
+  <div class="interior-inner">
+    <h3 class="section-title">店内のご紹介</h3>
+    <p class="interior-lead">タイの装飾とこだわりの空間。お一人でもグループでも、くつろげる席をご用意しています。</p>
+
+    <div class="interior-grid">
+      <figure class="interior-item">
+        <img src="assets/interior-table.jpg" alt="テーブル席">
+        <figcaption>
+          <h4>テーブル席</h4>
+          <p>レトロ感漂うコカコーラの装飾や、レコードが彩る雰囲気のあるテーブル席。</p>
+        </figcaption>
+      </figure>
+      <figure class="interior-item">
+        <img src="assets/interior-deco.jpg" alt="タイの装飾">
+        <figcaption>
+          <h4>タイの装飾</h4>
+          <p>タイの手織りの帽子、レトロゲーム機など、店内にはタイへの愛が詰まった装飾が散りばめられています。</p>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="interior-cta">
+      <p>店内の雰囲気はぜひご来店の上、お確かめください。</p>
+      <a href="https://sawatdee-reservation.pages.dev/" class="btn btn-primary" target="_blank" rel="noopener">
+        📅 ご予約はこちら
       </a>
-      <a href="https://sawatdee-pos.pages.dev/funpage.html" class="link-card" target="_blank" rel="noopener">
-        <span class="link-icon">🐘</span>
-        <span class="link-label">お楽しみページ</span>
-        <span class="link-desc">タイ語クイズ・トリビア</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========= クイズ・トリビア ========= -->
+<section class="page" id="page-quiz">
+  <div class="quiz-inner">
+    <h3 class="section-title">クイズ・トリビア</h3>
+    <div class="quiz-card">
+      <div class="quiz-icon">🐘</div>
+      <h4>お楽しみページで遊ぼう！</h4>
+      <ul class="quiz-features">
+        <li>🗣️ <strong>タイ語クイズ</strong> - 基本のフレーズを楽しく覚えよう</li>
+        <li>📚 <strong>タイ文化クイズ</strong> - マナーや習慣を知る</li>
+        <li>💡 <strong>タイトリビア</strong> - 知れば旅行が楽しくなる豆知識</li>
+        <li>📍 <strong>おすすめスポット</strong> - タイの旅行・お店情報</li>
+      </ul>
+      <a href="https://sawatdee-pos.pages.dev/funpage.html" class="btn btn-primary" target="_blank" rel="noopener">
+        🐘 お楽しみページへ →
       </a>
     </div>
   </div>
@@ -137,6 +182,6 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="script.js?v=1.5"></script>
 </body>
 </html>
