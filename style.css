@@ -454,10 +454,6 @@ img { display: block; max-width: 100%; height: auto; }
   color: var(--text-mid);
   line-height: 1.5;
   margin-bottom: 6px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 .menu-card-badges {
   display: flex;
@@ -598,6 +594,6 @@ img { display: block; max-width: 100%; height: auto; }
   .menu-card-name { font-size: 10.5px; line-height: 1.3; }
   .menu-card-thai { font-size: 8px; margin-bottom: 2px; }
   .menu-card-price { font-size: 12px; margin-bottom: 2px; }
-  .menu-card-desc { font-size: 9px; -webkit-line-clamp: 2; line-height: 1.4; margin-bottom: 4px; }
+  .menu-card-desc { font-size: 9px; line-height: 1.4; margin-bottom: 4px; }
   .menu-badge { font-size: 8px; padding: 1px 4px; }
 }
