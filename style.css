@@ -476,15 +476,18 @@ img { display: block; max-width: 100%; height: auto; }
 .menu-banner-text { display: inline-block; }
 
 .menu-cat-tabs {
-  display: none;
-  background: white;
-  padding: 12px;
+  display: flex;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 10px;
   gap: 8px;
   position: sticky;
   top: 49px;
   z-index: 90;
-  margin: 0 -16px;
+  margin: 20px -16px 24px;
   border-bottom: 1px solid var(--border-soft);
+  border-top: 1px solid var(--border-soft);
 }
 .menu-cat-btn {
   flex: 1;
@@ -731,4 +734,73 @@ img { display: block; max-width: 100%; height: auto; }
   .menu-card-price { font-size: 12px; margin-bottom: 2px; }
   .menu-card-desc { font-size: 9px; line-height: 1.4; margin-bottom: 4px; }
   .menu-badge { font-size: 8px; padding: 1px 4px; }
+}
+
+/* ── デスクトップ最適化（≥1024px） ── */
+@media (min-width: 1024px) {
+  .header-inner { min-height: 96px; }
+  .brand-logo { height: 84px; }
+  .header-mascot { height: 100px; bottom: -10px; }
+
+  .tab-nav { justify-content: center; padding: 0 24px; }
+  .tab-btn { flex: 0 0 auto; min-width: 140px; padding: 16px 20px; font-size: 14px; }
+
+  .hero { min-height: 640px; padding: 100px 24px 110px; }
+  .hero-inner { max-width: 880px; }
+  .hero-logo { max-width: 460px; margin-bottom: 28px; }
+  .hero-tagline { font-size: 32px; margin-bottom: 20px; }
+  .hero-desc { font-size: 17px; margin-bottom: 40px; }
+  .btn { padding: 16px 36px; font-size: 16px; }
+
+  .section-title { font-size: 28px; margin-bottom: 36px; padding-bottom: 14px; }
+  .section-title::after { width: 56px; height: 4px; }
+
+  .featured { padding: 88px 24px 96px; }
+  .featured-inner { max-width: 1080px; }
+  .featured-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .featured-card h4 { font-size: 20px; }
+  .featured-card p { font-size: 14px; }
+
+  #page-concept { padding: 88px 24px 96px; }
+  .concept-inner { max-width: 880px; }
+  .concept-greet-card, .concept-philosophy-card { padding: 32px 36px; }
+  .concept-greet-card p, .concept-philosophy-card p { font-size: 16px; }
+  .concept-philosophy-headline { font-size: 30px; margin-bottom: 22px; }
+  .commitment-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .commitment-card { padding: 28px 24px 24px; }
+  .commitment-card h4 { font-size: 17px; }
+  .commitment-card p { font-size: 13.5px; }
+
+  .menu-inner { max-width: 1200px; padding: 88px 24px 96px; }
+  .menu-cat-tabs { max-width: 720px; margin: 28px auto 36px; border-radius: 999px; border: 1px solid var(--border-light); }
+  .menu-cat-btn { padding: 12px 8px; font-size: 14px; }
+  .menu-cat-heading { font-size: 26px; padding-bottom: 14px; margin-bottom: 22px; }
+  .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .menu-card-img { aspect-ratio: 4 / 3; }
+  .menu-card-name { font-size: 16px; }
+  .menu-card-thai { font-size: 11px; }
+  .menu-card-price { font-size: 16px; }
+  .menu-card-desc { font-size: 12.5px; }
+
+  .interior-inner { max-width: 1200px; padding: 88px 24px 96px; }
+  .interior-lead { font-size: 17px; margin-bottom: 40px; }
+  .interior-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .interior-item-wide { grid-column: 1 / -1; }
+  .interior-item-wide img { aspect-ratio: 21 / 9; max-height: 360px; }
+  .interior-item h4 { font-size: 17px; }
+  .interior-item p { font-size: 13.5px; }
+
+  .info-inner { max-width: 680px; padding: 88px 24px 96px; }
+  .info-card-compact { padding: 32px 36px; }
+  .info-list { grid-template-columns: 110px 1fr; row-gap: 18px; }
+  .info-list dt { font-size: 14px; }
+  .info-list dd { font-size: 15px; }
+  .info-list .phone { font-size: 26px; }
+}
+
+/* ── ワイドデスクトップ（≥1440px） ── */
+@media (min-width: 1440px) {
+  .hero { min-height: 720px; }
+  .hero-logo { max-width: 520px; }
+  .hero-tagline { font-size: 36px; }
 }

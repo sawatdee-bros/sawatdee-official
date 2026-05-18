@@ -4,7 +4,7 @@
 const FIREBASE_DB_URL = 'https://sawatdee-bros-default-rtdb.asia-southeast1.firebasedatabase.app';
 
 // ===== タブ切替（スクロール式） =====
-const PAGE_NAMES = ['home', 'menu', 'concept', 'interior', 'info'];
+const PAGE_NAMES = ['home', 'concept', 'menu', 'interior', 'info'];
 let _suppressObserver = false;
 
 function setActiveTab(name) {
@@ -190,12 +190,48 @@ function renderAllMenus() {
   MENU_CATS.forEach(cat => {
     const inner = renderMenuCat(cat.key);
     if (!inner) return;
-    html += '<div class="menu-cat-block">'
+    html += '<div class="menu-cat-block" id="menu-cat-' + cat.key + '">'
       + '<h4 class="menu-cat-heading"><span class="menu-cat-icon">' + cat.icon + '</span>' + escapeHtml(cat.label) + '</h4>'
       + inner
       + '</div>';
   });
   body.innerHTML = html || '<div class="menu-empty">表示できる商品がありません。</div>';
+  setupMenuCatTabs();
+}
+
+let _suppressMenuObserver = false;
+function setupMenuCatTabs() {
+  const btns = document.querySelectorAll('.menu-cat-btn');
+  if (!btns.length) return;
+  // sticky 2層 (tab-nav 49px + sub-tabs ~50px) → scroll-margin 99px
+  const SUB_NAV_H = 99;
+  btns.forEach(btn => {
+    btn.onclick = () => {
+      const cat = btn.dataset.cat;
+      const target = document.getElementById('menu-cat-' + cat);
+      if (!target) return;
+      _suppressMenuObserver = true;
+      btns.forEach(b => b.classList.toggle('active', b === btn));
+      const y = target.getBoundingClientRect().top + window.scrollY - SUB_NAV_H;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      setTimeout(() => { _suppressMenuObserver = false; }, 700);
+    };
+  });
+  // スクロール位置に応じて active サブタブを更新
+  const obs = new IntersectionObserver(entries => {
+    if (_suppressMenuObserver) return;
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .map(e => ({ key: e.target.id.replace('menu-cat-', ''), top: e.boundingClientRect.top }))
+      .sort((a, b) => Math.abs(a.top - 99) - Math.abs(b.top - 99));
+    if (visible[0]) {
+      btns.forEach(b => b.classList.toggle('active', b.dataset.cat === visible[0].key));
+    }
+  }, { rootMargin: '-99px 0px -55% 0px', threshold: [0, 0.25, 0.5] });
+  MENU_CATS.forEach(c => {
+    const el = document.getElementById('menu-cat-' + c.key);
+    if (el) obs.observe(el);
+  });
 }
 
 function renderMenuCat(catKey) {
