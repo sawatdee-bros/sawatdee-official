@@ -1,4 +1,4 @@
-/* サワディ兄弟 公式サイト Phase 1 - お楽しみページのテイスト流用 */
+/* サワディ兄弟 公式サイト Phase 1 - お楽しみページのテイスト＋Wix の素材流用 */
 
 :root {
   --thai-red: #A31313;
@@ -23,68 +23,67 @@ html, body {
   font-family: 'Noto Sans JP', 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--warm-bg);
   color: var(--text-dark);
-  line-height: 1.6;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── ヘッダー ── */
+img { display: block; max-width: 100%; height: auto; }
+
+/* ── ヘッダー（ロゴバナー使用） ── */
 .site-header {
-  background: linear-gradient(135deg, var(--thai-red) 0%, var(--thai-red-dark) 100%);
+  background: var(--thai-red);
   color: white;
-  padding: 24px 16px 20px;
+  padding: 18px 16px 14px;
   box-shadow: var(--shadow);
 }
-.header-inner { max-width: 720px; margin: 0 auto; text-align: center; }
-.brand-jp {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  margin-bottom: 4px;
+.header-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.logo-banner {
+  max-width: 280px;
+  width: 80%;
+  height: auto;
+  border-radius: 8px;
 }
 .brand-th {
   font-family: 'Sarabun', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--thai-gold-light);
-  margin-bottom: 6px;
-}
-.brand-tagline {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.04em;
 }
 
 /* ── ヒーロー ── */
 .hero {
   background:
-    radial-gradient(circle at 20% 30%, rgba(240,165,0,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 20% 30%, rgba(240,165,0,0.10) 0%, transparent 50%),
     radial-gradient(circle at 80% 70%, rgba(163,19,19,0.06) 0%, transparent 50%),
     var(--warm-bg);
-  padding: 56px 16px 48px;
+  padding: 48px 16px 44px;
   text-align: center;
 }
 .hero-inner { max-width: 720px; margin: 0 auto; }
-.hero-title {
-  font-family: 'Fredoka One', cursive;
-  font-size: 38px;
-  color: var(--thai-red);
-  letter-spacing: 0.04em;
-  margin-bottom: 14px;
-  line-height: 1.1;
+.hero-logo {
+  max-width: 360px;
+  width: 85%;
+  margin: 0 auto 18px;
 }
 .hero-sub {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 900;
   color: var(--text-dark);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .hero-desc {
   font-size: 15px;
   color: var(--text-mid);
-  margin-bottom: 32px;
-  line-height: 1.8;
+  margin-bottom: 28px;
+  line-height: 1.9;
 }
 .hero-actions {
   display: flex;
@@ -115,6 +114,40 @@ html, body {
 }
 .btn-secondary:hover { background: #FEF3F3; }
 
+/* ── コンセプト（紙テクスチャ背景） ── */
+.concept {
+  background:
+    linear-gradient(rgba(255,248,240,0.7), rgba(255,248,240,0.7)),
+    url('assets/bg-paper.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 56px 16px;
+  border-top: 4px solid var(--thai-gold);
+  border-bottom: 4px solid var(--thai-gold);
+}
+.concept-inner { max-width: 680px; margin: 0 auto; }
+.concept-headline {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--thai-red);
+  margin-bottom: 12px;
+}
+.concept-lead {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--thai-gold);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.concept-body p {
+  font-size: 15px;
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  line-height: 1.9;
+}
+.concept-body strong { color: var(--thai-red); font-weight: 900; }
+.concept-body .hl { color: var(--thai-red); font-weight: 900; }
+
 /* ── セクション共通 ── */
 .section-title {
   font-size: 22px;
@@ -135,9 +168,50 @@ html, body {
   margin: 12px auto 0;
 }
 
+/* ── ギャラリー ── */
+.gallery {
+  background: var(--card-bg);
+  padding: 56px 16px;
+}
+.gallery-inner { max-width: 880px; margin: 0 auto; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 1 / 1;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.gallery-item:hover {
+  transform: scale(1.03);
+  box-shadow: var(--shadow-lg);
+}
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gallery-note {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-mid);
+}
+.gallery-note a {
+  color: var(--thai-red);
+  font-weight: 700;
+  text-decoration: none;
+}
+.gallery-note a:hover { text-decoration: underline; }
+
 /* ── 店舗情報 ── */
 .info {
-  background: var(--card-bg);
+  background: var(--warm-bg);
   padding: 56px 16px;
   border-top: 1px solid var(--border-light);
   border-bottom: 1px solid var(--border-light);
@@ -150,7 +224,7 @@ html, body {
   margin-bottom: 28px;
 }
 .info-card {
-  background: var(--warm-bg);
+  background: var(--card-bg);
   border: 1px solid var(--border-light);
   border-radius: 14px;
   padding: 18px 20px;
@@ -191,10 +265,7 @@ html, body {
 
 /* 営業時間 */
 .hours-card { grid-column: 1 / -1; }
-.hours-list {
-  list-style: none;
-  padding: 0;
-}
+.hours-list { list-style: none; padding: 0; }
 .hours-list li {
   display: flex;
   justify-content: space-between;
@@ -227,9 +298,7 @@ html, body {
 .map-wrap iframe { display: block; }
 
 /* ── 関連リンク ── */
-.links {
-  padding: 56px 16px;
-}
+.links { padding: 56px 16px; }
 .links-inner { max-width: 720px; margin: 0 auto; }
 .link-grid {
   display: grid;
@@ -279,10 +348,14 @@ html, body {
 
 /* ── レスポンシブ ── */
 @media (max-width: 480px) {
-  .brand-jp { font-size: 26px; }
-  .hero-title { font-size: 32px; }
+  .logo-banner { max-width: 220px; }
+  .hero-logo { max-width: 280px; }
   .hero-sub { font-size: 18px; }
   .hero-desc { font-size: 14px; }
   .btn { padding: 12px 22px; font-size: 14px; }
   .section-title { font-size: 20px; }
+  .concept-headline { font-size: 17px; }
+  .concept-lead { font-size: 16px; }
+  .concept-body p { font-size: 14px; }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
 }
