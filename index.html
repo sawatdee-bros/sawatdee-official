@@ -11,15 +11,18 @@
 <meta property="og:url" content="https://sawatdee-official.pages.dev/">
 <meta property="og:image" content="https://sawatdee-official.pages.dev/assets/logo-banner.jpg">
 <link rel="icon" href="assets/logo-banner.jpg" type="image/jpeg">
-<link rel="stylesheet" href="style.css?v=2.1">
+<link rel="stylesheet" href="style.css?v=3.0">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Sarabun:wght@400;600;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-inner">
-    <img src="assets/logo-banner.jpg" alt="酒とタイ料理 サワディ兄弟" class="logo-banner">
-    <p class="brand-th">สวัสดีบรอส</p>
+    <div class="brand">
+      <div class="brand-jp">サワディ兄弟</div>
+      <div class="brand-sub">酒とタイ料理 · สวัสดีบรอส</div>
+    </div>
+    <img src="assets/mascot.gif" class="header-mascot" alt="マスコット">
   </div>
 </header>
 
@@ -33,18 +36,60 @@
 </nav>
 
 <!-- ========= ホーム ========= -->
-<section class="page active" id="page-home">
+<section class="page" id="page-home">
   <div class="hero">
+    <div class="hero-bg" style="background-image:url('assets/food-shrimp.jpg')"></div>
+    <div class="hero-overlay"></div>
     <div class="hero-inner">
       <img src="assets/logo-text.gif" alt="SAWATDEE BROS" class="hero-logo">
-      <p class="hero-sub">本場の味を、川崎で。</p>
-      <p class="hero-desc">タイへの愛とリスペクトを込めて。<br>タイ人が美味しいと感じる味を、日本のお客様にも妥協なく。</p>
+      <p class="hero-tagline">タイへの愛とリスペクト。<br>本場の味を、川崎で。</p>
+      <p class="hero-desc">タイ人が美味しいと感じる味を、<br>日本のお客様にも妥協なくお届けします。</p>
       <div class="hero-actions">
         <a href="https://sawatdee-reservation.pages.dev/" class="btn btn-primary" target="_blank" rel="noopener">
           📅 ご予約はこちら
         </a>
-        <button class="btn btn-secondary" onclick="switchTab('menu')">
+        <button class="btn btn-ghost" onclick="switchTab('menu')">
           🍽 メニューを見る
+        </button>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">SCROLL ↓</div>
+  </div>
+
+  <!-- 看板メニュー -->
+  <div class="featured">
+    <div class="featured-inner">
+      <h3 class="section-title">看板メニュー</h3>
+      <p class="section-lead">タイ各地で出会い、研究を重ねた当店自慢の一皿。</p>
+      <div class="featured-grid">
+        <article class="featured-card">
+          <div class="featured-img" style="background-image:url('assets/food-gaiyaan.jpg')"></div>
+          <div class="featured-body">
+            <div class="featured-thai">ไก่ย่าง</div>
+            <h4>ガイヤーン</h4>
+            <p>石臼で潰したハーブの秘伝ダレに漬け込み、強火で焼き上げる炭火焼チキン。酒のアテに最高。</p>
+          </div>
+        </article>
+        <article class="featured-card">
+          <div class="featured-img" style="background-image:url('assets/food-greencurry.jpg')"></div>
+          <div class="featured-body">
+            <div class="featured-thai">แกงเขียวหวาน</div>
+            <h4>ゲーンキャオワーン</h4>
+            <p>ココナッツミルクとタイハーブのバランスが命のグリーンカレー。スパイシーさと甘みの絶妙な共演。</p>
+          </div>
+        </article>
+        <article class="featured-card">
+          <div class="featured-img" style="background-image:url('assets/food-shrimp.jpg')"></div>
+          <div class="featured-body">
+            <div class="featured-thai">กุ้งแม่น้ำเผา</div>
+            <h4>エビのグリル</h4>
+            <p>プリプリのエビを丸ごとグリルし、自家製ナンプラーディップで。タイ屋台気分を、川崎で。</p>
+          </div>
+        </article>
+      </div>
+      <div class="featured-cta">
+        <button class="btn btn-secondary" onclick="switchTab('menu')">
+          🍽 全メニューを見る →
         </button>
       </div>
     </div>
@@ -275,6 +320,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=2.0"></script>
+<script src="script.js?v=3.0"></script>
 </body>
 </html>

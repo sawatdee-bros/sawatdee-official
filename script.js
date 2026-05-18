@@ -3,25 +3,36 @@
 
 const FIREBASE_DB_URL = 'https://sawatdee-bros-default-rtdb.asia-southeast1.firebasedatabase.app';
 
-// ===== タブ切替 =====
-function switchTab(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + name);
-  if (target) target.classList.add('active');
+// ===== タブ切替（スクロール式） =====
+const PAGE_NAMES = ['home', 'concept', 'menu', 'interior', 'quiz'];
+let _suppressObserver = false;
+
+function setActiveTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === name);
   });
-  // URL hash で深リンク
   if (location.hash !== '#' + name) {
     history.replaceState(null, '', '#' + name);
   }
-  // ページ先頭にスクロール
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  // メニュータブの場合は初回ロード
   if (name === 'menu' && !window._menuLoaded) {
     loadMenu();
     window._menuLoaded = true;
   }
+}
+
+function switchTab(name) {
+  const target = document.getElementById('page-' + name);
+  if (!target) return;
+  // ホームのときはページ最上部、それ以外はセクション先頭へ
+  _suppressObserver = true;
+  setActiveTab(name);
+  if (name === 'home') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // smooth scroll 完了後に Observer を再開
+  setTimeout(() => { _suppressObserver = false; }, 700);
 }
 window.switchTab = switchTab;
 
@@ -30,11 +41,56 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
-  // 初期表示（URL hash があれば優先）
+  // 初期表示（URL hash があれば該当セクションへスクロール）
   const initial = (location.hash || '').replace('#', '');
-  if (['home', 'concept', 'menu', 'interior', 'quiz'].includes(initial)) {
-    switchTab(initial);
+  if (PAGE_NAMES.includes(initial) && initial !== 'home') {
+    // 初回ロード時は instant でジャンプ
+    requestAnimationFrame(() => {
+      const target = document.getElementById('page-' + initial);
+      if (target) {
+        _suppressObserver = true;
+        target.scrollIntoView({ behavior: 'auto', block: 'start' });
+        setActiveTab(initial);
+        setTimeout(() => { _suppressObserver = false; }, 200);
+      }
+    });
+  } else {
+    setActiveTab('home');
   }
+
+  // スクロール位置に応じて active タブを更新
+  // 画面中央近辺にあるセクションを active 扱い
+  const observer = new IntersectionObserver(entries => {
+    if (_suppressObserver) return;
+    // 表示中のセクションのうち、画面上端から最も近いものを active に
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .map(e => ({
+        name: e.target.id.replace('page-', ''),
+        top: e.boundingClientRect.top
+      }))
+      .sort((a, b) => Math.abs(a.top - 56) - Math.abs(b.top - 56));
+    if (visible[0]) setActiveTab(visible[0].name);
+  }, {
+    rootMargin: '-56px 0px -55% 0px',
+    threshold: [0, 0.25, 0.5, 0.75, 1]
+  });
+  PAGE_NAMES.forEach(n => {
+    const el = document.getElementById('page-' + n);
+    if (el) observer.observe(el);
+  });
+
+  // menu セクションが画面に近づいたら preload
+  const menuPreload = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !window._menuLoaded) {
+        loadMenu();
+        window._menuLoaded = true;
+      }
+    });
+  }, { rootMargin: '200px 0px' });
+  const menuSec = document.getElementById('page-menu');
+  if (menuSec) menuPreload.observe(menuSec);
 });
 
 // ===== 営業時間判定 (深夜営業対応・JST) =====
