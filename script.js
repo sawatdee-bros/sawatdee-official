@@ -130,6 +130,14 @@ function setupMenuCatTabs() {
       _currentMenuCat = btn.dataset.cat;
       document.querySelectorAll('.menu-cat-btn').forEach(b => b.classList.toggle('active', b === btn));
       renderMenu(_currentMenuCat);
+      // サブタブ切替時は page-menu 先頭に即時スクロールバック
+      // ※ .menu-cat-tabs は sticky なので scrollIntoView が効かない
+      // ※ タブ切替なので smooth より instant が自然
+      const pageMenu = document.getElementById('page-menu');
+      if (pageMenu) {
+        const y = pageMenu.getBoundingClientRect().top + window.scrollY - 49; // tab-nav の高さ分オフセット
+        window.scrollTo({ top: Math.max(0, y), behavior: 'auto' });
+      }
     });
   });
 }
