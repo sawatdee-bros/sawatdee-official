@@ -305,6 +305,16 @@ setInterval(updateOpenStatus, 60 * 1000);
 // ===== Firebase メニュー連携 =====
 let _menuData = null;
 let _menuOverrides = null;
+let _courseItemIds = new Set(); // 予約掲載コース(reservation_settings.course_item_ids)
+// 表示先の解決（POS customer の _visOf と同じ）。'both'=客向けに出す。
+function _visOf(item) {
+  if (!item) return 'none';
+  var v = item.visibility;
+  if (v === 'both' || v === 'handy' || v === 'none') return v;
+  if (item.active === false) return 'none';
+  if (item.product_type === 'plan') return (item.plan_config && item.plan_config.customer_visible) ? 'both' : 'handy';
+  return item.hidden ? 'handy' : 'both';
+}
 const MENU_CATS = [
   { key: 'drink', label: 'ドリンク', icon: '🍺' },
   { key: 'food',  label: 'フード',   icon: '🍽' },
@@ -316,12 +326,15 @@ async function loadMenu() {
   if (!body) return;
   body.innerHTML = '<div class="menu-loading">読み込み中...</div>';
   try {
-    const [menuRes, ovRes] = await Promise.all([
+    const [menuRes, ovRes, rsRes] = await Promise.all([
       fetch(FIREBASE_DB_URL + '/menu.json'),
-      fetch(FIREBASE_DB_URL + '/menu_overrides.json')
+      fetch(FIREBASE_DB_URL + '/menu_overrides.json'),
+      fetch(FIREBASE_DB_URL + '/tenants/sawatdee-bros/reservation_settings.json')
     ]);
     _menuData = await menuRes.json() || {};
     _menuOverrides = await ovRes.json() || {};
+    const _rs = await rsRes.json() || {};
+    _courseItemIds = new Set(Array.isArray(_rs.course_item_ids) ? _rs.course_item_ids : []);
     renderAllMenus();
   } catch (e) {
     body.innerHTML = '<div class="menu-empty">メニューの読み込みに失敗しました。<br>少し時間をおいて再度お試しください。</div>';
@@ -392,20 +405,22 @@ function renderMenuCat(catKey) {
   sortedSubcats.forEach((sub, idx) => {
     const itemsRaw = catData[sub];
     const items = Array.isArray(itemsRaw) ? itemsRaw : Object.values(itemsRaw || {});
-    // active && !hidden && !charge_exempt（お冷など）の商品のみ表示
-    const visibleItems = items.filter(it => it && it.active && !it.hidden);
+    // 公式掲載ルール: menu_overrides をマージし、visibility==='both'（客注文画面に出る商品）
+    // または 予約掲載コース(course_item_ids) のものだけ表示。ハンディのみ/非表示/テストは除外。
+    const visibleItems = items
+      .map(it => {
+        if (!it) return null;
+        const ov = (it.id && _menuOverrides[it.id]) ? _menuOverrides[it.id] : {};
+        return Object.assign({}, it, ov);
+      })
+      .filter(m => m && (_visOf(m) === 'both' || (m.id && _courseItemIds.has(m.id))));
     if (visibleItems.length === 0) return;
     visibleCount += visibleItems.length;
 
     html += '<div class="menu-subcat">';
     html += '<div class="menu-subcat-title"><span class="num">' + (idx + 1) + '</span><span class="label">' + escapeHtml(sub) + '</span></div>';
     html += '<div class="menu-grid">';
-    visibleItems.forEach(it => {
-      // menu_overrides マージ
-      const ov = (it.id && _menuOverrides[it.id]) ? _menuOverrides[it.id] : {};
-      const merged = Object.assign({}, it, ov);
-      html += renderMenuCard(merged);
-    });
+    visibleItems.forEach(m => { html += renderMenuCard(m); });
     html += '</div></div>';
   });
 
