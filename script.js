@@ -358,16 +358,30 @@ async function loadMenu() {
 function renderAllMenus() {
   const body = document.getElementById('menu-body');
   if (!body || !_menuData) return;
+  // ★bug fix (2026-08-06): #menu-cat-tabs も動的再構築。旧 index.html には drink/food/set の
+  //   ピルが hardcode で、set ピルの label が「コース」だった (旧設計で set=コース)。
+  //   カテゴリを増やして course 分離すると、set 空 + course ブロックあり → set ピル押しても
+  //   target menu-cat-set 存在せず飛ばない bug。MENU_CATS からピルも再生成して整合。
+  //   実際に商品が表示されるカテゴリのピルだけ出す (inner 空スキップと整合)。
+  const cats = [];
   let html = '';
   MENU_CATS.forEach(cat => {
     const inner = renderMenuCat(cat.key);
     if (!inner) return;
+    cats.push(cat);
     html += '<div class="menu-cat-block" id="menu-cat-' + cat.key + '">'
       + '<h4 class="menu-cat-heading"><span class="menu-cat-icon">' + cat.icon + '</span>' + escapeHtml(cat.label) + '</h4>'
       + inner
       + '</div>';
   });
   body.innerHTML = html || '<div class="menu-empty">表示できる商品がありません。</div>';
+  // ピル再生成: cats に含まれるカテゴリのみ (drink/food/set/course/lunch 等の実表示分)
+  const tabsEl = document.getElementById('menu-cat-tabs');
+  if (tabsEl) {
+    tabsEl.innerHTML = cats.map(function(c, i) {
+      return '<button class="menu-cat-btn' + (i === 0 ? ' active' : '') + '" data-cat="' + c.key + '">' + c.icon + ' ' + escapeHtml(c.label) + '</button>';
+    }).join('');
+  }
   setupMenuCatTabs();
 }
 
