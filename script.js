@@ -315,11 +315,23 @@ function _visOf(item) {
   if (item.product_type === 'plan') return (item.plan_config && item.plan_config.customer_visible) ? 'both' : 'handy';
   return item.hidden ? 'handy' : 'both';
 }
-const MENU_CATS = [
-  { key: 'drink', label: 'ドリンク', icon: '🍺' },
-  { key: 'food',  label: 'フード',   icon: '🍽' },
-  { key: 'set',   label: 'コース',   icon: '🎁' }
-];
+// ★bug fix (2026-08-06): 旧 MENU_CATS が drink/food/set のみ hardcode で、カテゴリを増やして
+//   course を新カテゴリに分離すると course セクションが公式サイトに出ない bug。
+//   loadMenu 内で menu の全カテゴリを動的検出し、preset の順序＋label/icon を当てて MENU_CATS を再構築。
+let MENU_CATS = [];
+const CAT_LABEL_ICON = {
+  drink:  { label: 'ドリンク', icon: '🍺' },
+  food:   { label: 'フード',   icon: '🍽' },
+  set:    { label: 'セット',   icon: '🎁' },
+  course: { label: 'コース',   icon: '🎁' },
+  lunch:  { label: 'ランチ',   icon: '🍱' }
+};
+const CAT_PRESET_ORDER = ['drink', 'food', 'set', 'course', 'lunch'];
+function _rebuildMenuCats() {
+  const knownKeys = Object.keys(_menuData || {}).filter(k => k !== 'subcatOrder' && _menuData[k] && typeof _menuData[k] === 'object');
+  const ordered = CAT_PRESET_ORDER.filter(k => knownKeys.includes(k)).concat(knownKeys.filter(k => !CAT_PRESET_ORDER.includes(k)));
+  MENU_CATS = ordered.map(k => Object.assign({ key: k, label: k, icon: '🍽' }, CAT_LABEL_ICON[k] || {}));
+}
 
 async function loadMenu() {
   const body = document.getElementById('menu-body');
@@ -335,6 +347,7 @@ async function loadMenu() {
     _menuOverrides = await ovRes.json() || {};
     const _rs = await rsRes.json() || {};
     _courseItemIds = new Set(Array.isArray(_rs.course_item_ids) ? _rs.course_item_ids : []);
+    _rebuildMenuCats();  // ★menu の全カテゴリを動的検出 (drink/food/set/course/lunch 等)
     renderAllMenus();
   } catch (e) {
     body.innerHTML = '<div class="menu-empty">メニューの読み込みに失敗しました。<br>少し時間をおいて再度お試しください。</div>';
